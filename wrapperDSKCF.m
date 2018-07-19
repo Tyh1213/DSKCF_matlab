@@ -1,6 +1,6 @@
 function [dsKCFoutputSr,dsKCFoutputSq,dsKCFsegmentationOut, avTime,totalTime,timeMatrix] = ...
     wrapperDSKCF(video_path, depth_path, img_files, depth_files, pos, target_sz, ...
-    DSKCFparameters, show_visualization,save_Images,dest_path,noBitShift)
+    DSKCFparameters, show_visualization,save_Images,dest_path,noBitShift,video)
 % WRAPPERDSKCF.m is the wrapper function for the DS-KCF tracker [1]
 %
 %   WRAPPERDSKCF is the wrapper function of the DS-KCF tracker [1]. This
@@ -274,9 +274,8 @@ for frame = 1:numel(img_files),
         end
         
         %take segmentation results for the first frame
-        trackerDSKCF_struct.currentTarget.segmentedBB=...
-            trackerDSKCF_struct.currentTarget.bb';
-    end
+        trackerDSKCF_struct.currentTarget.segmentedBB=trackerDSKCF_struct.currentTarget.bb';
+    end %    if(firstFrame)
 
     %DS-KCF tracker code need as input the position expressed as [y x],
     %remember this particular while reading the code!!!!!
@@ -337,27 +336,46 @@ for frame = 1:numel(img_files),
                 bbOCCToPlot=bbOCCToPlot*2;
             end
         end
-        
-        if(frame==1)
-            manualBBdraw_OCC_WithLabelsVisualize(imRGB,bbToPlot,bbOCCToPlot,'r','y',4,'DS-KCF','Occluder',myFigColor);
-            positionColor=get(gcf,'OuterPosition');
-            positionColor(1)=positionColor(1)-floor(positionColor(3)/2) -25;
-            set(gcf,'OuterPosition',positionColor);
-            manualBBdraw_OCC_WithLabelsVisualize(depth,bbToPlot,bbOCCToPlot,'r','y',4,'DS-KCF','Occluder',myFigDepth);
-            positionDepth=get(gcf,'OuterPosition');
-            positionDepth(1)=positionDepth(1)+floor(positionDepth(3)/2) +25;
-            set(gcf,'OuterPosition',positionDepth);
+        frame =frame
+         
+          %保存结果
+        if(trackerDSKCF_struct.currentTarget.underOcclusion)
+            name = ['/home/orbbec/DSKCF_matlab_result/' video '.txt'];
+            fp=fopen(name,'a');       
+            fprintf(fp,'%s\r\n','NaN,NaN,NaN,NaN,1'); 
+            fclose(fp);
+            disp('NaN,NaN,NaN,NaN,1');
         else
-            %myFigColor=figure();
-            %myFigDepth=figure();
-            clf(myFigColor);
-            manualBBdraw_OCC_WithLabelsVisualize(imRGB,bbToPlot,bbOCCToPlot,'r','y',4,'DS-KCF','Occluder',myFigColor);
-            
-            clf(myFigDepth);
-            manualBBdraw_OCC_WithLabelsVisualize(depth,bbToPlot,bbOCCToPlot,'r','y',4,'DS-KCF','Occluder',myFigDepth);
-            drawnow
-            pause(0.05)
+            a=[bbToPlot 0]  
+            name = ['/home/orbbec/DSKCF_matlab_result/' video '.txt'];
+            fp=fopen(name,'a');
+            fprintf(fp,'%d,%d,%d,%d,%d\r\n',a);%注意：\r\n为换
+            fclose(fp);
+
         end
+        
+%         if(frame==1)
+%             manualBBdraw_OCC_WithLabelsVisualize(imRGB,bbToPlot,bbOCCToPlot,'r','y',4,'DS-KCF','Occluder',myFigColor);
+%             positionColor=get(gcf,'OuterPosition');
+%             positionColor(1)=positionColor(1)-floor(positionColor(3)/2) -25;
+%             set(gcf,'OuterPosition',positionColor);
+%             manualBBdraw_OCC_WithLabelsVisualize(depth,bbToPlot,bbOCCToPlot,'r','y',4,'DS-KCF','Occluder',myFigDepth);
+%             positionDepth=get(gcf,'OuterPosition');
+%             positionDepth(1)=positionDepth(1)+floor(positionDepth(3)/2) +25;
+%             set(gcf,'OuterPosition',positionDepth);
+%         else
+%             %myFigColor=figure();
+%             %myFigDepth=figure();
+%             clf(myFigColor);
+%             manualBBdraw_OCC_WithLabelsVisualize(imRGB,bbToPlot,bbOCCToPlot,'r','y',4,'DS-KCF','Occluder',myFigColor);
+%             
+%             clf(myFigDepth);
+%             manualBBdraw_OCC_WithLabelsVisualize(depth,bbToPlot,bbOCCToPlot,'r','y',4,'DS-KCF','Occluder',myFigDepth);
+%             drawnow
+%             pause(0.05)
+%         end
+        
+
         
     end
     %% Visualize and save.....

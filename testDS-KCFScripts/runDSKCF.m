@@ -112,7 +112,7 @@ if(processAllVideos==false)
     %listVideos{1}='bear_front';
     %listVideos{1}='new_ex_occ4';
     %listVideos{2}='zcup_move_1';
-    listVideos{1}='child_no1';    
+    listVideos{1}='face_occ2';    
     %listVideos{1}='face_occ5';    
 else
     listVideos=listAllVideos;
@@ -284,7 +284,7 @@ for i=1:numVideo
     tmpDestFolder=generateFolderResults(rootDestFolder,listVideos{i},feature_type);
     
     %save in the folder input parameters and the current WORKSPACE!!!!!
-    save([tmpDestFolder '/inputParam.mat']); 
+   % save([tmpDestFolder '/inputParam.mat']); 
     
     boolPrinceton=strcmp(loadFileOrder,'princetonMAT');
     boolNewOrder=strcmp(loadFileOrder,'newOrder');
@@ -304,33 +304,33 @@ for i=1:numVideo
     [dsKCFoutputSr,dsKCFoutputSq,dsKCFsegmentationOut, avTime,totalTime,timeMatrix] = ...
         wrapperDSKCF(video_path, depth_path,img_files, depth_files, pos, ...
         target_sz, DSKCFparameters,saveParameters.show_visualization,...
-        saveParameters.savingImage,tmpDestFolder,saveParameters.noBitShift );
+        saveParameters.savingImage,tmpDestFolder,saveParameters.noBitShift,listVideos{i} );
    
     %save tracking results and processing time
-    save([tmpDestFolder '/procTime.mat'], 'totalTime');
-    save([tmpDestFolder '/procTime.txt'], 'totalTime','-ascii');
-    
-    save([tmpDestFolder '/procTimeFrames.mat'], 'avTime');
-    save([tmpDestFolder '/procTimeFrames.txt'], 'avTime','-ascii');
-
-    save([tmpDestFolder '/modulesTimeFrames.mat'], 'timeMatrix');
-    save([tmpDestFolder '/modulesTimeFrames.txt'], 'timeMatrix','-ascii');
-
-    
-    %Note we are saving the results as y x height width to be consistent
-    %with the notation presented in the princeton RGB-D [2]
-
-    %Results using Sr in [1] use this for your comparison
-    trackRes=[dsKCFoutputSr];
-    save([tmpDestFolder '/' listVideos{i} '.mat'], 'trackRes');
-    save([tmpDestFolder '/' listVideos{i} '.txt'], 'trackRes','-ascii');
-
-    %Results using Sq in [1]
-    trackResTargetSize=[dsKCFoutputSq];
-    save([tmpDestFolder '/' listVideos{i} 'TargetSize.mat'], 'trackResTargetSize');
-    save([tmpDestFolder '/' listVideos{i} 'TargetSize.txt'], 'trackResTargetSize','-ascii');
-    
-    %Results using segmentation
-    save([tmpDestFolder '/' listVideos{i} 'dsKCFsegmentationOut.mat'], 'dsKCFsegmentationOut');
-    save([tmpDestFolder '/' listVideos{i} 'dsKCFsegmentationOut.txt'], 'dsKCFsegmentationOut','-ascii');
+%     save([tmpDestFolder '/procTime.mat'], 'totalTime');
+%     save([tmpDestFolder '/procTime.txt'], 'totalTime','-ascii');
+%     
+%     save([tmpDestFolder '/procTimeFrames.mat'], 'avTime');
+%     save([tmpDestFolder '/procTimeFrames.txt'], 'avTime','-ascii');
+% 
+%     save([tmpDestFolder '/modulesTimeFrames.mat'], 'timeMatrix');
+%     save([tmpDestFolder '/modulesTimeFrames.txt'], 'timeMatrix','-ascii');
+% 
+%     
+%     %Note we are saving the results as y x height width to be consistent
+%     %with the notation presented in the princeton RGB-D [2]
+% 
+%     %Results using Sr in [1] use this for your comparison
+%     trackRes=[dsKCFoutputSr];
+%     save([tmpDestFolder '/' listVideos{i} '.mat'], 'trackRes');
+%     save([tmpDestFolder '/' listVideos{i} '.txt'], 'trackRes','-ascii');
+% 
+%     %Results using Sq in [1]
+%     trackResTargetSize=[dsKCFoutputSq];
+%     save([tmpDestFolder '/' listVideos{i} 'TargetSize.mat'], 'trackResTargetSize');
+%     save([tmpDestFolder '/' listVideos{i} 'TargetSize.txt'], 'trackResTargetSize','-ascii');
+%     
+%     %Results using segmentation
+%     save([tmpDestFolder '/' listVideos{i} 'dsKCFsegmentationOut.mat'], 'dsKCFsegmentationOut');
+%     save([tmpDestFolder '/' listVideos{i} 'dsKCFsegmentationOut.txt'], 'dsKCFsegmentationOut','-ascii');
 end

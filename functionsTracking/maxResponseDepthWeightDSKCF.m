@@ -96,6 +96,7 @@ else
             kzf = linear_correlation(zf, model_xf);
     end
     response = real(ifft2(model_alphaf .* kzf));  %equation for fast detection
+    response_shift = fftshift(response);
 
 end
 
