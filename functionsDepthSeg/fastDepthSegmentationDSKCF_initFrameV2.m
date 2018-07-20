@@ -36,21 +36,7 @@ function [L,C,LUT,H,I]=fastDepthSegmentationDSKCF_initFrameV2(im,c,nanMatrix,min
 %           max(im(:)). 
 %   -H histogram's bins height
 %   -I histogram's bins centers
-%  
-%  See also LUT2LABELNANSUPPORT, INITDISTRIBUTIONFAST
-%
-%  [1] S. Hannuna, M. Camplani, J. Hall, M. Mirmehdi, D. Damen, T.
-%  Burghardt, A. Paiement, L. Tao, DS-KCF: A real-time tracker for RGB-D
-%  data, Journal of Real-Time Image Processing
-%
-%
-%  University of Bristol 
-%  Massimo Camplani and Sion Hannuna
-%  
-%  massimo.camplani@bristol.ac.uk 
-%  hannuna@compsci.bristol.ac.uk
 
-% Default input arguments
 if nargin<2 || isempty(c), c=2; end
 
 % Basic error checking

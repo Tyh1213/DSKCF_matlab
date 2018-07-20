@@ -1,27 +1,3 @@
-% FROMCENTRALPOINTTOBB.m is a function for calculating target bounding box
-%
-%  FROMCENTRALPOINTTOBB is a function that calculates the target bounding
-%  box given the centroid position and the size of the target
-%
-%   INPUT:
-%  -centerX target's centroid coordinate (column in the image plane)
-%  -centerY target's centroid coordinate (row in the image plane)
-%  -width target's width
-%  -height target's height
-% -maxX,maxY image limits
-%
-%   OUTPUT
-%  -bb calculated bounding box in the format [topLeftY, topLeftX,
-%   bottomRightY, bottomRightX] read as [rowIndexTopLeft, columnIndexTopLeft,
-%   rowIndexBottomRight, columnIndexBottomRight]
-%
-%  See also SINGLEFRAMEDSKCF, FROMCENTRALPOINTTOBB 
-%
-%  University of Bristol
-%  Massimo Camplani and Sion Hannuna
-%  
-%  massimo.camplani@bristol.ac.uk
-%  hannuna@compsci.bristol.ac.uk
 
 function bb=fromCentralPointToBB(centerX,centerY,width,height,maxX,maxY)
 

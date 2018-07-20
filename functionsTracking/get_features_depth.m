@@ -19,20 +19,6 @@ function [x separateDepth] = get_features_depth(im, depth, features, cell_size, 
 %  -x features extracted 
 %  -separateDepth features extracted for depth in case color and depth
 %  features are selected, in the other cases this matrix is empty
-%
-%  See also FHOG, MAXRESPONSEDSKCF, MAXRESPONSEDEPTHWEIGHTDSKCF,
-%  MODELUPDATEDSKCF
-%
-%[1] S. Hannuna, M. Camplani, J. Hall, M. Mirmehdi, D. Damen, T. Burghardt,
-% A.Paiement, L. Tao, DS-KCF: A ~real-time tracker for RGB-D data, Journal
-% of Real-Time Image Processing
-%
-%
-%  University of Bristol
-%  Massimo Camplani and Sion Hannuna
-%
-%  massimo.camplani@bristol.ac.uk
-%  hannuna@compsci.bristol.ac.uk
 
 separateDepth=[];
 

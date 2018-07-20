@@ -65,11 +65,11 @@ for i=1:length(DSKCFparameters.scales)
     scaleDSKCF_struct.pos(i).pos = pos;
     
     %create regression labels, gaussian shaped, with a bandwidth
-    %proportional to target size
+    %proportional to target size  构造回归函数的 目标函数
     scaleDSKCF_struct.output_sigmas(i).output_sigma = sqrt(prod(scaleDSKCF_struct.target_sz(i).target_sz)) * DSKCFparameters.output_sigma_factor / DSKCFparameters.cell_size;
     scaleDSKCF_struct.yfs(i).yf = fft2(gaussian_shaped_labels( scaleDSKCF_struct.output_sigmas(i).output_sigma, floor( scaleDSKCF_struct.windows_sizes(i).window_sz / DSKCFparameters.cell_size)));
     
-    %store pre-computed cosine window
+    %store pre-computed cosine window存储 预计算的cos 窗函数
     scaleDSKCF_struct.cos_windows(i).cos_window = hann(size(scaleDSKCF_struct.yfs(i).yf,1)) * hann(size(scaleDSKCF_struct.yfs(i).yf,2))';
     scaleDSKCF_struct.lens(i).len = scaleDSKCF_struct.target_sz(i).target_sz(1) * scaleDSKCF_struct.target_sz(i).target_sz(2);
     scaleDSKCF_struct.inds(i).ind = floor(linspace(1,scaleDSKCF_struct.lens(i).len, round(0.25 * scaleDSKCF_struct.lens(i).len)));

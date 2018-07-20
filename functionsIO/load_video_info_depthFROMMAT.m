@@ -103,8 +103,6 @@ assert(~isempty(depth_files_), 'No depth files to load.')
 
 
 
-
-
 for i = 1:numOfFrames
     img_files{i} = sprintf('r-%d-%d.png',frames.imageTimestamp(i), frames.imageFrameID(i));
     depth_files{i} = sprintf('d-%d-%d.png',frames.depthTimestamp(i), frames.depthFrameID(i));

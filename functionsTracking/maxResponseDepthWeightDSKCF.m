@@ -31,24 +31,7 @@ model_xf,model_alphaf,model_xDf,model_alphaDf,meanDepthObj,stdDepthObj)
 %   -maxPositionImagePlane vector containing the position in the image
 %   plane of the target's centroid. It is in the format [y, x] (read also as
 %   [rowIndex, columIndex])
-%
-% See also GAUSSIAN_CORRELATION, GET_FEATURES_DEPTH, BESTRESPONSES,
-% POLYNOMIAL_CORRELATION, LINEAR_CORRELATION, SINGLEFRAMEDSKCF
-%
-%
-% [1] S. Hannuna, M. Camplani, J. Hall, M. Mirmehdi, D. Damen, T. Burghardt,
-%  A.Paiement, L. Tao, DS-KCF: A ~real-time tracker for RGB-D data, Journal
-%  of Real-Time Image Processing
-%
-%  [2] J. F. Henriques, R. Caseiro, P. Martins, and J. Batista. High-speed
-%  tracking with kernelized correlation filters. Pattern Analysis and
-%  Machine Intelligence, IEEE Transactions on, 2015.
-%
-%  University of Bristol
-%  Massimo Camplani and Sion Hannuna
-%
-%  massimo.camplani@bristol.ac.uk
-%  hannuna@compsci.bristol.ac.uk
+
 
 if(features.hog_linear)
     
@@ -96,11 +79,11 @@ else
             kzf = linear_correlation(zf, model_xf);
     end
     response = real(ifft2(model_alphaf .* kzf));  %equation for fast detection
-    response_shift = fftshift(response);
+   % response_shift = fftshift(response);
 
 end
 
 %now select the maximum adding a depth weight
-%the number of candidate is set to 10
+%the number of candidate is set to 10 根据深度值的分布 对 response 加权
 [maxResponse,maxPositionImagePlane]=bestResponses(depth16Bit,response,10,...
     cell_size,pos,meanDepthObj,stdDepthObj);

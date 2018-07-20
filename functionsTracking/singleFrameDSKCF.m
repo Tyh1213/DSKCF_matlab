@@ -1,17 +1,8 @@
 function [pos,trackerDSKCF_struct,trackerDSKCF_structOccluder,scaleDSKCF_struct,...
-    DSKCFparameters_Occluder,segmentedMASK,shapeDSKCF_struct,timeMatrixRow]=singleFrameDSKCF(firstFrame,pos,frameCurr,...
-    trackerDSKCF_struct,DSKCFparameters,scaleDSKCF_struct,...
-    trackerDSKCF_structOccluder,DSKCFparameters_Occluder,shapeDSKCF_struct)
+    DSKCFparameters_Occluder,segmentedMASK,shapeDSKCF_struct]=...
+    singleFrameDSKCF(firstFrame,pos,frameCurr,trackerDSKCF_struct,DSKCFparameters,...
+    scaleDSKCF_struct,trackerDSKCF_structOccluder,DSKCFparameters_Occluder,shapeDSKCF_struct)
 % SINGLEFRAMEDSKCF.m is the core function of DS-KCF tracker
-%
-%
-%   SINGLEFRAMEDSKCF is the core function of DS-KCF tracker (for more
-%   details see [1]). It applies the DS-KCF tracker to a single frame of
-%   the sequence. This function is based on several data structures where
-%   input and output data is stored.Please note that data structures are
-%   supposed to be initialized as in wrapperDSKCF and runDSKCF.m test
-%   script.
-%
 %   INPUT:
 %   - firstFrame   boolean flag that marks the first frame of the
 %   sequence
@@ -38,25 +29,7 @@ function [pos,trackerDSKCF_struct,trackerDSKCF_structOccluder,scaleDSKCF_struct,
 %   -DSKCFparameters_Occluder updated parameter structure for the occluder
 %   -timeMatrixRow Vecotr containing the processing rate for all the main
 %   modules of the ds-kcf (see [1] for more details)
-%
-%  See also wrapperDSKCF, CHECKOCCLUSIONSDSKCF_NOISEMODEL,
-%  CHECKOCCLUSIONSDSKCF_SECONDPLANE, ENLARGEBB, OCCLUDINGOBJECTSEGDSKCF,
-%  TARGETSEARCHDSKCF, GETSCALEFACTORSTRUCT, FROMBBTOCENTRALPOINT,
-%  FROMCENTRALPOINTTOBB, GAUSSIAN_SHAPED_LABELS, GET_SUBWINDOW,
-%  MAXRESPONSEDEPTHWEIGHTDSKCF, MODELUPDATEDSKCF, RESETDSKCFTRACKERINFO,
-%  ROIFROMBB,SINGLEFRAMEDSKCF_OCCLUDER,INITDSKCFSHAPE,EXTRACTSEGMENTEDPATCHV3,
-%  REGIONMODIFICATIONCHECK,GETSHAPEFACTORSTRUCTDIRECTIONSV2
-%
-%  [1] S. Hannuna, M. Camplani, J. Hall, M. Mirmehdi, D. Damen, T.
-%  Burghardt, A. Paiement, L. Tao, DS-KCF: A real-time tracker for RGB-D
-%  data, Journal of Real-Time Image Processing
-%
-%
-%  University of Bristol
-%  Massimo Camplani and Sion Hannuna
-%
-%  massimo.camplani@bristol.ac.uk
-%  hannuna@compsci.bristol.ac.uk
+
 
 im=frameCurr.gray;
 imRGB=frameCurr.rgb;
@@ -75,23 +48,19 @@ currentScale=scaleDSKCF_struct.i;
 trackerDSKCF_struct=resetDSKCFtrackerInfo(trackerDSKCF_struct);
 changeOfShapeFlag=false;
 segmentedMASK=repmat(0,size(depth));
-numberTimeIntervals=7;
-timeMatrixRow=repmat(-1,1,numberTimeIntervals);
+
 
 %This is not the first frame we can start tracking!!!!!!!!!!
 if(firstFrame==false)
     
     %no occlusion case 非遮挡的情况
     if ~trackerDSKCF_struct.previousTarget.underOcclusion,
-        
-        timeMaxResponse=tic();
-        ticINDEX=1;
-        
-        %track the object and then check for occlusions
+            %track the object and then check for occlusions
         patch = get_subwindow(im, pos, scaleDSKCF_struct.windows_sizes(currentScale).window_sz);
         patch_depth = get_subwindow(depth, pos, scaleDSKCF_struct.windows_sizes(currentScale).window_sz);
         
         %calculate response of the DS-KCF tracker
+        %计算DSKCF的response
         [response, maxResponse,pos]=maxResponseDepthWeightDSKCF(...
             patch,patch_depth,depth16Bit, DSKCFparameters.features,DSKCFparameters.kernel,...
             pos,DSKCFparameters.cell_size, scaleDSKCF_struct.cos_windows(currentScale).cos_window,...
@@ -110,18 +79,14 @@ if(firstFrame==false)
             size(im,2),size(im,1));
         
         trackerDSKCF_struct.currentTarget.conf=max(response(:));%use this one, discard the weight...
-        timeMatrixRow(ticINDEX)=toc(timeMaxResponse);
-        
-        timeSegmentAndCheck=tic();
-        ticINDEX=2;
         
         %segment the depth data inside the tracked region
         %在跟踪区域分割深度图
-        [p, trackerDSKCF_struct.currentTarget.meanDepthObj,...
-            trackerDSKCF_struct.currentTarget.stdDepthObj,estimatedDepth,...
+        [p, trackerDSKCF_struct.currentTarget.meanDepthObj,trackerDSKCF_struct.currentTarget.stdDepthObj,estimatedDepth,...
             estimatedSTD,minIndexReduced,trackerDSKCF_struct.currentTarget.LabelRegions,...
             trackerDSKCF_struct.currentTarget.Centers,trackerDSKCF_struct.currentTarget.regionIndex,...
-            trackerDSKCF_struct.currentTarget.LUT,regionIndexOBJ] = checkOcclusionsDSKCF_noiseModel(...
+            trackerDSKCF_struct.currentTarget.LUT,regionIndexOBJ] =...
+            checkOcclusionsDSKCF_noiseModel(...
             depth16Bit,noData,trackerDSKCF_struct, trackerDSKCF_struct.currentTarget.bb);
         
         %if the segmented target is in the front plane use current bounding
@@ -257,10 +222,6 @@ if(firstFrame==false)
             end
         end
         
-        timeMatrixRow(ticINDEX)=toc(timeSegmentAndCheck);
-        
-        timeStartNewTracker=tic();
-        ticINDEX=3;
         
         %IF UNDER OCCLUSION START TO SEGMENT OCCLUDER AND OCCLUDED
         %OBJECTS
@@ -327,15 +288,12 @@ if(firstFrame==false)
             end
         end
         
-        timeMatrixRow(ticINDEX)=toc(timeStartNewTracker);
+ 
         
     else  
         %PREVIOUS FRAME UNDER OCCLUSION....
         %遮挡的情况
-        
-        timeTrackOccluder=tic();
-        ticINDEX=4;
-        
+
         %track the occluded object!!!
         %跟踪遮挡物
         [trackerDSKCF_structOccluder,occludedPos]=singleFrameDSKCF_occluder(0,im,...
@@ -359,10 +317,8 @@ if(firstFrame==false)
         %update occluder bb in the main target
         trackerDSKCF_struct.currentTarget.occBB=trackerDSKCF_structOccluder.currentTarget.bb;
         
-        timeMatrixRow(ticINDEX)=toc(timeTrackOccluder);
-        
-        timeSolveOcclusion=tic();
-        ticINDEX=5;
+
+
         
         %enlarge searching reagion...
         if(isempty(trackerDSKCF_struct.previousTarget.bb)==false)
@@ -548,18 +504,18 @@ if(firstFrame==false)
             trackerDSKCF_struct.currentTarget.stdDepthObj = trackerDSKCF_struct.previousTarget.stdDepthObj;
         end
         
-        timeMatrixRow(ticINDEX)=toc(timeSolveOcclusion);
+   
     end
     
     
-end
+end  %if(firstFrame==false)
 %  更新阶段
 %IF UNDER OCCLUSION DON'T UPDATE.....
 if(trackerDSKCF_struct.previousTarget.underOcclusion==false && trackerDSKCF_struct.currentTarget.underOcclusion==false)
     additionalShapeInterpolation=0;
-    timeEstimateChangeOfScale=tic();
-    ticINDEX=6;
+
     
+
     %check for scale change
     %检查尺度变化
     if(firstFrame==false)
@@ -571,10 +527,10 @@ if(trackerDSKCF_struct.previousTarget.underOcclusion==false && trackerDSKCF_stru
         end
     end
     
-    timeMatrixRow(ticINDEX)=toc(timeEstimateChangeOfScale);
+
     
-    timeModelUpdate=tic();
-    ticINDEX=7;
+
+
     
     %obtain a subwindow for training at newly estimated target position
     patch = get_subwindow(im, pos, scaleDSKCF_struct.windows_sizes(scaleDSKCF_struct.i).window_sz);
@@ -611,7 +567,7 @@ if(trackerDSKCF_struct.previousTarget.underOcclusion==false && trackerDSKCF_stru
         
     end
     
-    timeMatrixRow(ticINDEX)=toc(timeModelUpdate);
+
     
 else
     %%THERE IS AN OCCLUSION.....NOW WHAT TO DO.....? DON'T UPDATE MODEL....

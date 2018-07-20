@@ -23,19 +23,7 @@ function [targetDepth,targetStd,LabelReg,regionIndex,Centers,LUT] = initDistribu
 %  components
 %  -LUT look-up-table containing the connected component labels and the
 %  corresponding mean depth value
-%
-%  See also ROIFROMBB, FASTDEPTHSEGMENTATIONDSKCF_INITFRAME, WRAPPERDSKCF
-%
-%  [1] S. Hannuna, M. Camplani, J. Hall, M. Mirmehdi, D. Damen, T.
-%  Burghardt, A.Paiement, L. Tao, DS-KCF: A real-time tracker for RGB-D
-%  data, Journal of Real-Time Image Processing
-%
-%
-%  University of Bristol
-%  Massimo Camplani and Sion Hannuna
-%
-%  massimo.camplani@bristol.ac.uk
-%  hannuna@compsci.bristol.ac.uk
+
 
 %extract the target roi, from the depth and the nodata mask
 front_depth=roiFromBB(depth16Bit,bbIn);
@@ -43,12 +31,16 @@ depthNoData=roiFromBB(noData,bbIn);
 
 [LabelReg,Centers,LUT]=fastDepthSegmentationDSKCF_initFrameV2(front_depth,3,depthNoData,1,50,[-1 -1 -1],1);
 
-%for the initialization the object belong to the cluster with the smaller
-%depth (see [1] for more details)
+%for the initialization the object belong to the cluster with the smaller depth (see [1] for more details)
+%在初始化时，深度值最小的聚类 为 目标
 [targetDepth,regionIndex]=min(Centers);
+
 %extract all the depth value belonging to that cluster
+%提取 属于 该 聚类的 所有 深度值
 depthVector=double(front_depth(LabelReg==regionIndex));
+
 %then calculate the standard deviation
+%计算方差
 targetStd=std(depthVector);
 
 end

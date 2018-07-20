@@ -93,6 +93,7 @@ cd(currentFolder)
 
 %now select the data folder
 rootSourceFolder=('/media/orbbec/7024AED824AEA1181/EvaluationSet');
+%rootSourceFolder=('/home/orbbec/data');
 cd(rootSourceFolder);
 rootSourceFolder=pwd()
 
@@ -118,14 +119,7 @@ else
     listVideos=listAllVideos;
 end
 
-%Saving info struct saveParameters contains some flags about saving tracker
-%results
-saveParameters.savingImage=false; %save images with Bounding Box overlapped
-saveParameters.savingTrackBool=true; %save tracker output
-saveParameters.savingDSKCFParamMat=true;  %save in a matlab file the parameters used
-saveParameters.overwriteFolderBool=false; %overwrite results folder or generate new ones
-saveParameters.show_visualization=true; %show the tracking results live in a matlab figure
-saveParameters.noBitShift=false; %for some dataset the depth data need a bitshift (see wrapperDSKCF())
+show_visualization=false; %show the tracking results live in a matlab figure
 
 
 %% SETTING TRACKER'S PARAMETERS
@@ -152,7 +146,7 @@ padding = 1.5;  %extra area surrounding the target
 lambda = 1e-4;  %regularization
 output_sigma_factor = 0.1;  %spatial bandwidth (proportional to target)
 
-%Set the scale Sq in [1]
+%Set the scale Sq in [1]  尺度设置
 scales = 0.4:0.1:2.2;
 
 
@@ -301,36 +295,13 @@ for i=1:numVideo
     end
     
     %call tracker wrapper function with all the relevant parameters
-    [dsKCFoutputSr,dsKCFoutputSq,dsKCFsegmentationOut, avTime,totalTime,timeMatrix] = ...
-        wrapperDSKCF(video_path, depth_path,img_files, depth_files, pos, ...
-        target_sz, DSKCFparameters,saveParameters.show_visualization,...
-        saveParameters.savingImage,tmpDestFolder,saveParameters.noBitShift,listVideos{i} );
+    [dsKCFoutput] =   wrapperDSKCF(video_path, depth_path,img_files, depth_files, pos, ...
+        target_sz, DSKCFparameters,show_visualization,listVideos{i} );
    
-    %save tracking results and processing time
-%     save([tmpDestFolder '/procTime.mat'], 'totalTime');
-%     save([tmpDestFolder '/procTime.txt'], 'totalTime','-ascii');
-%     
-%     save([tmpDestFolder '/procTimeFrames.mat'], 'avTime');
-%     save([tmpDestFolder '/procTimeFrames.txt'], 'avTime','-ascii');
-% 
-%     save([tmpDestFolder '/modulesTimeFrames.mat'], 'timeMatrix');
-%     save([tmpDestFolder '/modulesTimeFrames.txt'], 'timeMatrix','-ascii');
-% 
-%     
-%     %Note we are saving the results as y x height width to be consistent
-%     %with the notation presented in the princeton RGB-D [2]
-% 
-%     %Results using Sr in [1] use this for your comparison
-%     trackRes=[dsKCFoutputSr];
-%     save([tmpDestFolder '/' listVideos{i} '.mat'], 'trackRes');
-%     save([tmpDestFolder '/' listVideos{i} '.txt'], 'trackRes','-ascii');
-% 
-%     %Results using Sq in [1]
-%     trackResTargetSize=[dsKCFoutputSq];
-%     save([tmpDestFolder '/' listVideos{i} 'TargetSize.mat'], 'trackResTargetSize');
-%     save([tmpDestFolder '/' listVideos{i} 'TargetSize.txt'], 'trackResTargetSize','-ascii');
-%     
-%     %Results using segmentation
-%     save([tmpDestFolder '/' listVideos{i} 'dsKCFsegmentationOut.mat'], 'dsKCFsegmentationOut');
-%     save([tmpDestFolder '/' listVideos{i} 'dsKCFsegmentationOut.txt'], 'dsKCFsegmentationOut','-ascii');
+
+
+    %Results using Sr in [1] use this for your comparison
+    trackRes=[dsKCFoutput];
+    save([tmpDestFolder '/' listVideos{i} '.txt'], 'trackRes','-ascii');
+
 end
